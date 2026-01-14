@@ -22,14 +22,14 @@ import {
 const PORTFOLIO_DATA = {
   profile: {
     name: "Deepesh Kumar Appar Senthilkumar",
-    role: "AI Automation Expert",
+    role: "Aspiring AI Engineer, LLM,ML and DataScience",
     status: "M.S. in AI Candidate @ Illinois Tech",
     tagline: "Building the Autonomous Future",
     bio: "AI Automation Expert & Researcher specialized in high-performance autonomous agents and full-stack development. Transforming complex workflows into elegant, autonomous systems using LLMs, n8n, and modern web technologies.",
     social: {
-      github: "https://github.com/deepesh-kumar",
+      github: "https://github.com/DeepeshkumarApparSenthilkumar",
       linkedin: "https://www.linkedin.com/in/deepesh-kumar-a90a16218",
-      email: "mailto:dk505@iit.edu"
+      email: "mailto:dk5058203@gmail.com"
     }
   },
   impactMetrics: [
@@ -60,12 +60,12 @@ const PORTFOLIO_DATA = {
     {
       institution: "Illinois Institute of Technology",
       degree: "M.S. in Artificial Intelligence",
-      period: "2024 - 2026",
-      description: "Focusing on Autonomous Systems, Deep Learning, and Computer Vision. GPA: 3.6",
+      period: "2025 - 2027",
+      description: "Focusing on Artificial Intelligence, Deep Learning, Big Data, LLM. GPA: 3.6",
       type: "edu"
     },
     {
-      institution: "Shiv Nadar University",
+      institution: "Shiv Nadar University Chennai",
       degree: "B.Tech in IoT",
       period: "Graduated",
       description: "Specialized in IoT and AI. GPA: 3.7. Capstone: Conductive Polymer Based Novel Electronic Devices for Biomedical Application and Neuromorphic Computing.",
@@ -83,14 +83,14 @@ const PORTFOLIO_DATA = {
     {
       title: "Career Path AI",
       tags: ["Mixtral-8x7B", "Node.js", "SerpAPI"],
-      metric: "Hackathon Winner",
+      metric: "Hackathon Project",
       description: "The Problem: Job seekers struggle with ATS compatibility and identifying skill gaps.\n\nThe Solution: A personalized mentor-tone agent built with Mixtral-8x7B and Node.js.\n\nTechnical Workflow: Uses SerpAPI for live job data, parses resumes for ATS scoring, and generates custom project roadmaps to help users bridge technical gaps.",
       links: { github: "#", demo: "#" }
     },
     {
       title: "Transit Deserts Analysis",
       tags: ["Python", "NetworkX", "GeoPandas"],
-      metric: "Research Paper",
+      metric: "Semester Project",
       description: "Conducted a dual-layer network analysis of Chicago's transit system to identify 'Transit Deserts'.\n\nMethodology: Developed a custom Transit Accessibility Index (TAI) by synthesizing CTA GTFS data and ACS Census data.\n\nNetwork Modeling: Constructed two distinct graph layers using Python (NetworkX) to identify neighborhoods that are geographically central but structurally isolated.",
       links: { github: "#", demo: "#" }
     },
@@ -104,7 +104,7 @@ const PORTFOLIO_DATA = {
     {
       title: "AI Cricket Journalist",
       tags: ["n8n", "Perplexity", "Gemini"],
-      metric: "Autonomous",
+      metric: "Autonomous Project",
       description: "Built an autonomous AI journalist agent that gathers, summarizes, and emails a curated 'Cricket Today' news bulletin.\n\nLayered LLM Architecture: Used Perplexity Sonar-Pro for search and Google Gemini 2.5 Flash for formatting.\n\nAutomation Pipeline: Engineered a complete n8n workflow for scheduled triggering and delivery via Gmail.",
       links: { github: "#", demo: "#" }
     },
