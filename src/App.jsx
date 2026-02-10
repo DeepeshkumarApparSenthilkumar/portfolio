@@ -22,14 +22,14 @@ import {
 const PORTFOLIO_DATA = {
   profile: {
     name: "Deepesh Kumar Appar Senthilkumar",
-    role: "Aspiring AI Engineer, LLM,ML and DataScience",
+    role: "AI Automation Expert",
     status: "M.S. in AI Candidate @ Illinois Tech",
     tagline: "Building the Autonomous Future",
     bio: "AI Automation Expert & Researcher specialized in high-performance autonomous agents and full-stack development. Transforming complex workflows into elegant, autonomous systems using LLMs, n8n, and modern web technologies.",
     social: {
-      github: "https://github.com/DeepeshkumarApparSenthilkumar",
+      github: "https://github.com/deepesh-kumar",
       linkedin: "https://www.linkedin.com/in/deepesh-kumar-a90a16218",
-      email: "mailto:dk5058203@gmail.com"
+      email: "mailto:dapparsenthilkumar@hawk.illinoistech.edu"
     }
   },
   impactMetrics: [
@@ -38,9 +38,26 @@ const PORTFOLIO_DATA = {
     { label: "Prediction Accuracy", value: "97%", icon: <Cpu className="w-5 h-5 text-cyan-400" /> }
   ],
   skills: [
-    "Python", "n8n", "GenAI (Gemini/Mixtral)", "React", "Node.js", "SQL", "Computer Vision (YOLO)", "Scikit-learn", "Tableau", "Power BI"
+    "Microsoft Copilot Studio", "MCP", "Groq LLM", "LangChain",
+    "FastAPI", "React", "Tailwind CSS", "SQL", "SQLite",
+    "Selenium", "BeautifulSoup4", "GitHub Actions",
+    "Text-to-SQL Optimization", "Predictive Modeling", "Enterprise AI Workflows"
   ],
   experience: [
+    {
+      company: "Illinois Institute of Technology",
+      role: "Research Assistant",
+      period: "Jan 2026 – Present",
+      description: "Email & Outlook Automation: Architecting intelligent enterprise agents within Microsoft Copilot Studio to automate complex scheduling and communication workflows.\n\nText-to-SQL Research: Conducting advanced research on natural language interface for databases, optimizing LLM ability to translate complex user queries into executable SQL.\n\nAcademic Collaboration: Working under the guidance of Dr. Gerald Balekaki to bridge the gap between theoretical AI models and practical enterprise applications.",
+      type: "work"
+    },
+    {
+      company: "I Am I Authentications, Inc.",
+      role: "AI R&D Intern",
+      period: "Jan 2026 – Present",
+      description: "Contributing to the Research and Development of next-generation authentication protocols using AI-driven security patterns.\n\nExploring cutting-edge identity verification technologies to enhance user security and system integrity.",
+      type: "work"
+    },
     {
       company: "Wayfair",
       role: "AI Automation Extern",
@@ -60,12 +77,12 @@ const PORTFOLIO_DATA = {
     {
       institution: "Illinois Institute of Technology",
       degree: "M.S. in Artificial Intelligence",
-      period: "2025 - 2027",
-      description: "Focusing on Artificial Intelligence, Deep Learning, Big Data, LLM. GPA: 3.6",
+      period: "2024 - 2026",
+      description: "Focusing on Autonomous Systems, Deep Learning, and Computer Vision. GPA: 3.6",
       type: "edu"
     },
     {
-      institution: "Shiv Nadar University Chennai",
+      institution: "Shiv Nadar University",
       degree: "B.Tech in IoT",
       period: "Graduated",
       description: "Specialized in IoT and AI. GPA: 3.7. Capstone: Conductive Polymer Based Novel Electronic Devices for Biomedical Application and Neuromorphic Computing.",
@@ -73,6 +90,20 @@ const PORTFOLIO_DATA = {
     }
   ],
   projects: [
+    {
+      title: "Text-to-SQL AI Agent",
+      tags: ["MCP", "FastAPI", "React", "Groq LLM"],
+      metric: "Real-time CoT",
+      description: "Architecture: Model Context Protocol (MCP) | FastAPI | React | Groq LLM\n\nMulti-Layer Reasoning: Developed a 3-layer agent architecture (Discovery, Planning, Execution) that utilizes a Self-Correction loop to ensure SQL query accuracy.\n\nPremium User Experience: Built a modern React UI featuring Real-time 'Chain of Thought' visualization, allowing users to see the agent’s reasoning process as it generates queries.\n\nEnterprise Features: Integrated SQL preview and dynamic data table rendering for a seamless natural-language-to-database interaction.",
+      links: { github: "#", demo: "#" }
+    },
+    {
+      title: "Automated Panchang Mailer",
+      tags: ["Python", "Selenium", "GitHub Actions", "BS4"],
+      metric: "100% Uptime",
+      description: "End-to-End Automation: Engineered a tool that autonomously fetches daily Tamil Panchangam details for Chicago from Drik Panchang using Selenium browser automation.\n\nCloud Orchestration: Configured GitHub Actions to trigger the pipeline daily at 6:00 AM CST, ensuring 100% uptime without manual intervention.\n\nData Delivery: Extracts key astronomical data (Tithi, Nakshatra, Rahu Kalam) and formats it into a beautifully styled HTML email dispatched via SMTP.",
+      links: { github: "#", demo: "#" }
+    },
     {
       title: "Market Intelligence Agent",
       tags: ["n8n", "Gemini", "NewsAPI"],
@@ -83,14 +114,14 @@ const PORTFOLIO_DATA = {
     {
       title: "Career Path AI",
       tags: ["Mixtral-8x7B", "Node.js", "SerpAPI"],
-      metric: "Hackathon Project",
+      metric: "Hackathon Winner",
       description: "The Problem: Job seekers struggle with ATS compatibility and identifying skill gaps.\n\nThe Solution: A personalized mentor-tone agent built with Mixtral-8x7B and Node.js.\n\nTechnical Workflow: Uses SerpAPI for live job data, parses resumes for ATS scoring, and generates custom project roadmaps to help users bridge technical gaps.",
       links: { github: "#", demo: "#" }
     },
     {
       title: "Transit Deserts Analysis",
       tags: ["Python", "NetworkX", "GeoPandas"],
-      metric: "Semester Project",
+      metric: "Research Paper",
       description: "Conducted a dual-layer network analysis of Chicago's transit system to identify 'Transit Deserts'.\n\nMethodology: Developed a custom Transit Accessibility Index (TAI) by synthesizing CTA GTFS data and ACS Census data.\n\nNetwork Modeling: Constructed two distinct graph layers using Python (NetworkX) to identify neighborhoods that are geographically central but structurally isolated.",
       links: { github: "#", demo: "#" }
     },
@@ -98,13 +129,13 @@ const PORTFOLIO_DATA = {
       title: "IPL Match Predictor",
       tags: ["Scikit-learn", "Python", "ML"],
       metric: "97% Accuracy",
-      description: "The Problem: Real-time sports betting and fan engagement require accurate, live probability forecasting.\n\nThe Solution: A machine learning model achieving 97% accuracy using a Scikit-learn pipeline.\n\nTechnical Detail: The model synthesizes complex variables such as Required Run Rate (RRR) and historical stadium performance to update win probabilities ball-by-ball.",
+      description: "The Problem: Real-time sports betting and fan engagement require accurate, live probability forecasting.\n\nThe Solution: A machine learning model achieving 97% accuracy using a Scikit-learn pipeline.\n\nTechnical Detail: The model synthesizes complex variables such as RRR and historical stadium performance to update win probabilities ball-by-ball.",
       links: { github: "#", demo: "#" }
     },
     {
       title: "AI Cricket Journalist",
       tags: ["n8n", "Perplexity", "Gemini"],
-      metric: "Autonomous Project",
+      metric: "Autonomous",
       description: "Built an autonomous AI journalist agent that gathers, summarizes, and emails a curated 'Cricket Today' news bulletin.\n\nLayered LLM Architecture: Used Perplexity Sonar-Pro for search and Google Gemini 2.5 Flash for formatting.\n\nAutomation Pipeline: Engineered a complete n8n workflow for scheduled triggering and delivery via Gmail.",
       links: { github: "#", demo: "#" }
     },
