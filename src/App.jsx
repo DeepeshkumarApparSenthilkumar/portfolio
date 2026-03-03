@@ -27,7 +27,7 @@ const PORTFOLIO_DATA = {
     tagline: "Building the Autonomous Future",
     bio: "AI Automation Expert & Researcher specialized in high-performance autonomous agents and full-stack development. Transforming complex workflows into elegant, autonomous systems using LLMs, n8n, and modern web technologies.",
     social: {
-      github: "https://github.com/deepesh-kumar",
+      github: "https://github.com/DeepeshkumarApparSenthilkumar",
       linkedin: "https://www.linkedin.com/in/deepesh-kumar-a90a16218",
       email: "mailto:dapparsenthilkumar@hawk.illinoistech.edu"
     }
