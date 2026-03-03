@@ -22,7 +22,7 @@ import {
 const PORTFOLIO_DATA = {
   profile: {
     name: "Deepesh Kumar Appar Senthilkumar",
-    role: "AI Automation Expert",
+    role: "Aspiring AI Engineer",
     status: "M.S. in AI Candidate @ Illinois Tech",
     tagline: "Building the Autonomous Future",
     bio: "AI Automation Expert & Researcher specialized in high-performance autonomous agents and full-stack development. Transforming complex workflows into elegant, autonomous systems using LLMs, n8n, and modern web technologies.",
