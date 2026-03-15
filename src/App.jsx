@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import {
   Terminal,
   Database,
@@ -15,21 +15,26 @@ import {
   ChevronRight,
   Award,
   BookOpen,
-  Layers
+  Layers,
+  ArrowUp,
+  Menu,
+  X,
+  Phone
 } from 'lucide-react';
 
 // --- CENTRALIZED DATA ---
 const PORTFOLIO_DATA = {
   profile: {
     name: "Deepesh Kumar Appar Senthilkumar",
-    role: "Aspiring AI Engineer",
+    role: "AI Solutions Engineer & Full-Stack Developer",
     status: "M.S. in AI Candidate @ Illinois Tech",
     tagline: "Building the Autonomous Future",
-    bio: "AI Automation Expert & Researcher specialized in high-performance autonomous agents and full-stack development. Transforming complex workflows into elegant, autonomous systems using LLMs, n8n, and modern web technologies.",
+    bio: "AI Researcher and Graduate Student focused on deploying multi-agent systems and real-world AI applications. Proven track record in rapid product development—from urban life platforms like chi360 to AI-driven newsletter engines—leveraging LLMs and modern web stacks to solve local and global challenges.",
     social: {
       github: "https://github.com/DeepeshkumarApparSenthilkumar",
       linkedin: "https://www.linkedin.com/in/deepesh-kumar-a90a16218",
-      email: "mailto:dapparsenthilkumar@hawk.illinoistech.edu"
+      email: "mailto:dapparsenthilkumar@hawk.illinoistech.edu",
+      phone: "+1 312 451 3943"
     }
   },
   impactMetrics: [
@@ -91,6 +96,20 @@ const PORTFOLIO_DATA = {
   ],
   projects: [
     {
+      title: "Flavor Bridge",
+      tags: ["AI", "Web", "Hackathon"],
+      metric: "Built in 45m",
+      description: "The Problem: Bridging the gap between familiar dishes and unexplored global cuisines.\n\nThe Solution: An interactive AI-powered culinary compass that takes user input to predict and recommend the best food replacements.\n\nTechnical Feat: Integrated AI to map personalized flavor DNA and suggest alternative global cuisines, fully conceptualized and deployed in just 45 minutes.",
+      links: { github: "#", demo: "https://taste-bridge-labs.base44.app" }
+    },
+    {
+      title: "chi360 @ Demon Hacks",
+      tags: ["React", "Node.js", "Supabase", "Vercel"],
+      metric: "6 Modules in 48h",
+      description: "The Problem: A need to capture Chicago's pulse across different dimensions without combining into a single lens.\n\nThe Solution: chi360, a decentralized 6-pillar platform (Markets, Skyline, Atmos, Living, Discover, Transit) addressing transit, housing, air quality, and more.\n\nTechnical Stack: Built collaboratively in 48 hours utilizing a scalable React UI, Node.js & Express backend, and Supabase for seamless data auth.",
+      links: { github: "#", demo: "https://youtu.be/EHFtcalkXnI" }
+    },
+    {
       title: "Text-to-SQL AI Agent",
       tags: ["MCP", "FastAPI", "React", "Groq LLM"],
       metric: "Real-time CoT",
@@ -145,6 +164,39 @@ const PORTFOLIO_DATA = {
       metric: "Real-time",
       description: "The Problem: Athlete fatigue often goes unnoticed until an injury occurs.\n\nThe Solution: A hardware-software integration using EMG BioAmp sensors and Arduino.\n\nTechnical Workflow: Captures biomechanical signals, processes them in MATLAB, and displays fatigue patterns on a dashboard to alert coaches before the 'injury threshold' is reached.",
       links: { github: "#", demo: "#" }
+    }
+  ],
+  articles: [
+    {
+      title: "6 People, 48 Hours, 1 City: How We Built chi360 at Demon Hacks",
+      link: "https://medium.com/@dk5058203/6-people-48-hours-1-city-how-we-built-chi360-at-demon-hacks-a6eb2d405d57",
+      date: "Mar 6, 2026",
+      readTime: "5 min read"
+    },
+    {
+      title: "Transit Deserts and Network Reach: A Data-Driven Analysis of Chicago's Urban Mobility",
+      link: "https://medium.com/@dk5058203/transit-deserts-and-network-reach-a-data-driven-analysis-of-chicagos-urban-mobility-e6a83bc60b17",
+      date: "Dec 17, 2025",
+      readTime: "6 min read"
+    },
+    {
+      title: "Recipe Compass, Story Driven Recipe Recommendation Engine",
+      link: "https://medium.com/@dk5058203/recipe-compass-story-driven-recipe-recommendation-engine-2d520dd7fbd7",
+      date: "Nov 28, 2025",
+      readTime: "4 min read"
+    },
+    {
+      title: "CareerPath AI — Your Personal AI Mentor for Smarter Career Growth",
+      link: "https://medium.com/@dk5058203/careerpath-ai-your-personal-ai-mentor-for-smarter-career-growth-fa01eb8c9216",
+      date: "Nov 9, 2025",
+      readTime: "7 min read"
+    },
+    {
+      title: "Cricket News Reporting Agent",
+      tags: ["AI Agents", "n8n", "Generative AI"],
+      link: "https://medium.com/@dk5058203/cricket-news-reporting-agent-55e62cd8beb1",
+      date: "Oct 26, 2025",
+      readTime: "4 min read"
     }
   ]
 };
@@ -234,7 +286,7 @@ const ProjectCard = ({ project, index }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: true, amount: 0.1, margin: "0px 0px -100px 0px" }}
       transition={{ delay: index * 0.1 }}
       className="group relative glass-card rounded-xl overflow-hidden hover:border-cyan-500/30 transition-all duration-300"
     >
@@ -274,13 +326,50 @@ const ProjectCard = ({ project, index }) => {
   );
 };
 
+const ArticleCard = ({ article, index }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1, margin: "0px 0px -100px 0px" }}
+      transition={{ delay: index * 0.1 }}
+      className="group relative glass-card rounded-xl overflow-hidden hover:border-purple-500/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] flex flex-col justify-between"
+    >
+      <a href={article.link} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-10" aria-label={`Read ${article.title}`}></a>
+      <div className="p-6 md:p-8 flex flex-col h-full">
+        <div className="flex justify-between items-start mb-4">
+          <div className="p-2 rounded-lg bg-white/5 group-hover:bg-purple-500/10 transition-colors">
+            <BookOpen className="w-6 h-6 text-purple-400 group-hover:text-purple-300" />
+          </div>
+          <ExternalLink className="w-5 h-5 text-slate-500 group-hover:text-purple-400 transition-colors" />
+        </div>
+
+        <h3 className="text-xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors leading-tight">
+          {article.title}
+        </h3>
+
+        <div className="mt-auto flex items-center justify-between pt-4 border-t border-white/5">
+          <div className="flex gap-4 text-sm text-slate-400">
+            <span>{article.date}</span>
+            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline">{article.readTime}</span>
+          </div>
+          <span className="text-purple-400 text-sm font-medium group-hover:translate-x-1 transition-transform flex items-center gap-1">
+            Read <ChevronRight className="w-4 h-4" />
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const ExperienceItem = ({ item, index }) => {
   const isEdu = item.type === 'edu';
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: true, amount: 0.1, margin: "0px 0px -100px 0px" }}
       transition={{ delay: index * 0.1 }}
       className="relative pl-8 pb-12 last:pb-0 border-l border-white/10"
     >
@@ -299,6 +388,28 @@ const ExperienceItem = ({ item, index }) => {
 
 function App() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -318,7 +429,63 @@ function App() {
         }}
       />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-12 md:py-20">
+      {/* Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-cyan-500 origin-left z-50 shadow-[0_0_10px_rgba(6,182,212,0.8)]"
+        style={{ scaleX }}
+      />
+
+      {/* Navigation */}
+      <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-deepDark/80 backdrop-blur-md border-b border-white/10 py-4 shadow-lg' : 'bg-transparent py-6'}`}>
+        <div className="max-w-6xl mx-auto px-6 flex justify-between items-center">
+          <a href="#" onClick={(e) => { e.preventDefault(); scrollToTop(); }} className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 hover:opacity-80 transition-opacity flex items-center gap-2">
+            <img src="/profile.jpg" alt="Deepesh Kumar Avatar" className="w-8 h-8 rounded-full border border-white/20 shadow-lg shadow-cyan-500/20 object-cover object-top" />
+            <span className="hidden sm:block whitespace-nowrap">Deepesh Kumar</span>
+          </a>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#projects" className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors">Projects</a>
+            <a href="#articles" className="text-sm font-medium text-slate-300 hover:text-purple-400 transition-colors">Articles</a>
+            <a href="#education" className="text-sm font-medium text-slate-300 hover:text-purple-400 transition-colors">Education</a>
+            <a href="#experience" className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors">Experience</a>
+            <a href={PORTFOLIO_DATA.profile.social.email} className="px-4 py-2 rounded-lg bg-white/5 hover:bg-cyan-500/20 border border-white/10 hover:border-cyan-500/50 text-sm font-medium text-white transition-all">
+              Contact Me
+            </a>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <div className="md:hidden">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-slate-300 hover:text-white focus:outline-none">
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Nav Dropdown */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="md:hidden bg-deepDark/95 backdrop-blur-xl border-b border-white/10 overflow-hidden"
+            >
+              <div className="flex flex-col py-4 px-6 gap-4">
+                <a href="#projects" onClick={() => setMobileMenuOpen(false)} className="text-lg font-medium text-slate-300 hover:text-cyan-400 py-2 border-b border-white/5">Projects</a>
+                <a href="#articles" onClick={() => setMobileMenuOpen(false)} className="text-lg font-medium text-slate-300 hover:text-purple-400 py-2 border-b border-white/5">Articles</a>
+                <a href="#education" onClick={() => setMobileMenuOpen(false)} className="text-lg font-medium text-slate-300 hover:text-purple-400 py-2 border-b border-white/5">Education</a>
+                <a href="#experience" onClick={() => setMobileMenuOpen(false)} className="text-lg font-medium text-slate-300 hover:text-cyan-400 py-2 border-b border-white/5">Experience</a>
+                <a href={PORTFOLIO_DATA.profile.social.email} onClick={() => setMobileMenuOpen(false)} className="mt-2 text-center px-4 py-3 rounded-lg bg-cyan-500/20 border border-cyan-500/50 text-base font-medium text-white shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                  Contact Me
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+
+      <div className="relative z-10 max-w-6xl mx-auto px-6 py-12 pt-32 md:py-20 md:pt-40">
 
         {/* HERO SECTION */}
         <header className="mb-24">
@@ -331,11 +498,11 @@ function App() {
             {/* Profile Photo */}
             <div className="mb-8 relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-              <div className="relative w-32 h-32 md:w-48 md:h-48 rounded-full overflow-hidden border-2 border-white/10 bg-slate-900 shadow-2xl">
+              <div className="relative w-32 h-32 md:w-48 md:h-48 flex-shrink-0 rounded-full overflow-hidden border-2 border-white/20 bg-white shadow-2xl">
                 <img
                   src="/profile.jpg"
                   alt="Deepesh Kumar"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-top"
                 />
               </div>
             </div>
@@ -361,12 +528,15 @@ function App() {
               {PORTFOLIO_DATA.profile.bio}
             </p>
 
-            <div className="flex gap-4 mt-4">
+            <div className="flex flex-wrap gap-4 mt-4">
               <a href={PORTFOLIO_DATA.profile.social.linkedin} className="px-6 py-3 rounded-lg bg-white text-black font-semibold hover:bg-cyan-50 transition-colors flex items-center gap-2">
                 <Linkedin className="w-4 h-4" /> Connect
               </a>
               <a href={PORTFOLIO_DATA.profile.social.github} className="px-6 py-3 rounded-lg glass-panel hover:bg-white/5 transition-colors flex items-center gap-2">
                 <Github className="w-4 h-4" /> GitHub
+              </a>
+              <a href={`tel:${PORTFOLIO_DATA.profile.social.phone.replace(/[\s-]/g, '')}`} className="px-6 py-3 rounded-lg glass-panel hover:bg-white/5 transition-colors flex items-center gap-2">
+                <Phone className="w-4 h-4" /> {PORTFOLIO_DATA.profile.social.phone}
               </a>
             </div>
           </motion.div>
@@ -399,7 +569,7 @@ function App() {
         </section>
 
         {/* PROJECTS GRID */}
-        <section className="mb-24">
+        <section id="projects" className="mb-24 pt-10 scroll-mt-20">
           <div className="flex items-center gap-2 mb-8">
             <Layers className="w-5 h-5 text-cyan-400" />
             <h2 className="text-2xl font-bold text-white">Featured Projects</h2>
@@ -412,8 +582,25 @@ function App() {
           </div>
         </section>
 
+        {/* ARTICLES SECTION */}
+        <section id="articles" className="mb-24 pt-10 scroll-mt-20">
+          <div className="flex items-center gap-2 mb-8">
+            <BookOpen className="w-5 h-5 text-purple-400" />
+            <h2 className="text-2xl font-bold text-white">Publications & Articles</h2>
+            <a href="https://medium.com/@dk5058203" target="_blank" rel="noopener noreferrer" className="ml-auto text-sm text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1">
+              View all on Medium <ChevronRight className="w-4 h-4" />
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {PORTFOLIO_DATA.articles.map((article, idx) => (
+              <ArticleCard key={idx} article={article} index={idx} />
+            ))}
+          </div>
+        </section>
+
         {/* EDUCATION SECTION (Prioritized) */}
-        <section className="mb-24">
+        <section id="education" className="mb-24 pt-10 scroll-mt-20">
           <div className="flex items-center gap-2 mb-8">
             <BookOpen className="w-6 h-6 text-purple-400" />
             <h2 className="text-3xl font-bold text-white">Education</h2>
@@ -438,7 +625,7 @@ function App() {
         </section>
 
         {/* EXPERIENCE SECTION */}
-        <section className="mb-24">
+        <section id="experience" className="mb-24 pt-10 scroll-mt-20">
           <div className="flex items-center gap-2 mb-8">
             <BriefcaseIcon className="w-6 h-6 text-cyan-400" />
             <h2 className="text-3xl font-bold text-white">Professional Experience</h2>
@@ -467,6 +654,9 @@ function App() {
           <div className="text-center md:text-left">
             <h3 className="text-lg font-bold text-white">{PORTFOLIO_DATA.profile.name}</h3>
             <p className="text-slate-500 text-sm mt-1">{PORTFOLIO_DATA.profile.tagline}</p>
+            <a href={`tel:${PORTFOLIO_DATA.profile.social.phone.replace(/[\s-]/g, '')}`} className="inline-flex items-center gap-2 text-slate-400 text-sm mt-3 hover:text-cyan-400 transition-colors">
+              <Phone className="w-4 h-4" /> {PORTFOLIO_DATA.profile.social.phone}
+            </a>
           </div>
 
           <div className="flex gap-6">
@@ -487,6 +677,26 @@ function App() {
         </footer>
 
       </div>
+
+      {/* Floating Scroll to Top */}
+      <AnimatePresence>
+        {isScrolled && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.8 }}
+            className="fixed bottom-6 right-6 z-50"
+          >
+             <button
+              onClick={scrollToTop}
+              className="p-3 md:p-4 rounded-full bg-slate-800/80 backdrop-blur border border-white/10 text-cyan-400 shadow-lg shadow-cyan-500/20 hover:bg-slate-700 transition-colors group focus:outline-none"
+              aria-label="Scroll to top"
+            >
+              <ArrowUp className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
