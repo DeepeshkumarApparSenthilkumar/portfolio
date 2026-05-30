@@ -1,12 +1,26 @@
 export default async function handler(req, res) {
+  // CORS headers for safety
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { messages } = req.body ?? {};
+  // Vercel parses JSON body automatically when Content-Type is application/json
+  const body = req.body ?? {};
+  const { messages } = body;
 
   if (!Array.isArray(messages)) {
+    console.error('Invalid body:', JSON.stringify(body));
     return res.status(400).json({ error: 'Invalid request: messages must be an array' });
+  }
+
+  if (!process.env.OPENROUTER_API_KEY) {
+    console.error('OPENROUTER_API_KEY not set');
+    return res.status(500).json({ error: 'API key not configured on server' });
   }
 
   const systemPrompt = `You are an AI assistant representing Deepesh Kumar Appar Senthilkumar. Answer questions about him in first person as if you are him, but make it clear you're his AI assistant when asked directly.
@@ -83,16 +97,23 @@ Keep answers concise (2-4 sentences), friendly, and enthusiastic. If asked about
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      console.error('OpenRouter error:', err);
-      return res.status(500).json({ error: 'AI service error' });
+      const errText = await response.text();
+      console.error(`OpenRouter ${response.status}:`, errText);
+      return res.status(502).json({
+        error: `OpenRouter error ${response.status}`,
+        detail: errText.slice(0, 200),
+      });
     }
 
     const data = await response.json();
-    const message = data.choices?.[0]?.message?.content ?? "Sorry, I couldn't generate a response.";
+    const message = data.choices?.[0]?.message?.content;
+    if (!message) {
+      console.error('No message in response:', JSON.stringify(data));
+      return res.status(502).json({ error: 'Empty response from AI' });
+    }
     return res.status(200).json({ message });
   } catch (error) {
-    console.error('Handler error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Handler error:', error.message);
+    return res.status(500).json({ error: 'Internal server error', detail: error.message });
   }
 }

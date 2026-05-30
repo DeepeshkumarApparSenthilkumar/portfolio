@@ -369,11 +369,17 @@ const AIChatSection = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: nextMessages }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
+      if (!res.ok) {
+        const detail = data?.detail || data?.error || `Error ${res.status}`;
+        throw new Error(detail);
+      }
       setMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
-    } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: "I'm having trouble connecting right now. Please try again in a moment!" }]);
+    } catch (err) {
+      const msg = err.message?.includes('fetch')
+        ? "Can't reach the server. Check your connection."
+        : `Something went wrong: ${err.message}`;
+      setMessages(prev => [...prev, { role: 'assistant', content: msg }]);
       setShowSuggestions(true);
     } finally {
       setIsThinking(false);
