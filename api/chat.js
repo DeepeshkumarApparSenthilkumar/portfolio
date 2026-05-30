@@ -18,10 +18,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid request: messages must be an array' });
   }
 
-  if (!process.env.OPENROUTER_API_KEY) {
-    console.error('OPENROUTER_API_KEY not set');
-    return res.status(500).json({ error: 'API key not configured on server' });
-  }
 
   const systemPrompt = `You are an AI assistant representing Deepesh Kumar Appar Senthilkumar. Answer questions about him in first person as if you are him, but make it clear you're his AI assistant when asked directly.
 
@@ -77,30 +73,37 @@ ARTICLES (on Medium):
 Keep answers concise (2-4 sentences), friendly, and enthusiastic. If asked about salary, say you're open to discussing based on role and location. Always mention relevant contact info if someone seems interested in connecting.`;
 
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://deepeshkumar.vercel.app',
-        'X-Title': 'Deepesh Kumar Portfolio',
-      },
-      body: JSON.stringify({
-        model: 'mistralai/mistral-7b-instruct:free',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...messages.slice(-10),
-        ],
-        max_tokens: 400,
-        temperature: 0.7,
-      }),
-    });
+    const HF_TOKEN = process.env.HF_TOKEN;
+    if (!HF_TOKEN) {
+      console.error('HF_TOKEN not set');
+      return res.status(500).json({ error: 'HF_TOKEN not configured on server' });
+    }
+
+    const response = await fetch(
+      'https://api-inference.huggingface.co/models/meta-llama/Llama-3.1-8B-Instruct/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${HF_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/Llama-3.1-8B-Instruct',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages.slice(-10),
+          ],
+          max_tokens: 400,
+          temperature: 0.7,
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error(`OpenRouter ${response.status}:`, errText);
+      console.error(`HuggingFace ${response.status}:`, errText);
       return res.status(502).json({
-        error: `OpenRouter error ${response.status}`,
+        error: `HuggingFace error ${response.status}`,
         detail: errText.slice(0, 200),
       });
     }
