@@ -73,37 +73,33 @@ ARTICLES (on Medium):
 Keep answers concise (2-4 sentences), friendly, and enthusiastic. If asked about salary, say you're open to discussing based on role and location. Always mention relevant contact info if someone seems interested in connecting.`;
 
   try {
-    const HF_TOKEN = process.env.HF_TOKEN;
-    if (!HF_TOKEN) {
-      console.error('HF_TOKEN not set');
-      return res.status(500).json({ error: 'HF_TOKEN not configured on server' });
+    if (!process.env.GROQ_API_KEY) {
+      console.error('GROQ_API_KEY not set');
+      return res.status(500).json({ error: 'GROQ_API_KEY not configured on server' });
     }
 
-    const response = await fetch(
-      'https://api-inference.huggingface.co/models/meta-llama/Llama-3.1-8B-Instruct/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${HF_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'meta-llama/Llama-3.1-8B-Instruct',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            ...messages.slice(-10),
-          ],
-          max_tokens: 400,
-          temperature: 0.7,
-        }),
-      }
-    );
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages.slice(-10),
+        ],
+        max_tokens: 400,
+        temperature: 0.7,
+      }),
+    });
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error(`HuggingFace ${response.status}:`, errText);
+      console.error(`Groq ${response.status}:`, errText);
       return res.status(502).json({
-        error: `HuggingFace error ${response.status}`,
+        error: `Groq error ${response.status}`,
         detail: errText.slice(0, 200),
       });
     }

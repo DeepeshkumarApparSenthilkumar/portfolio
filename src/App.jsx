@@ -456,7 +456,7 @@ const AIChatSection = () => {
           <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2.5 flex-shrink-0">
             <div className={`w-2 h-2 rounded-full transition-colors ${isThinking ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
             <span className="text-sm font-medium text-slate-300">AI Portfolio Assistant</span>
-            <span className="text-xs text-slate-600 ml-auto font-mono">HuggingFace · Llama-3.1-8B</span>
+            <span className="text-xs text-slate-600 ml-auto font-mono">Groq · Llama-3.1-8B</span>
           </div>
 
           {/* Messages */}
