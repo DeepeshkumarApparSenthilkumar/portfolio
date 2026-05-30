@@ -86,7 +86,7 @@ Keep answers concise (2-4 sentences), friendly, and enthusiastic. If asked about
         'X-Title': 'Deepesh Kumar Portfolio',
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.1-8b-instruct:free',
+        model: 'mistralai/mistral-7b-instruct:free',
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages.slice(-10),
