@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import {
   Terminal,
@@ -20,7 +20,9 @@ import {
   Phone,
   Briefcase,
   ChevronDown,
-  Sparkles
+  Sparkles,
+  Download,
+  Send
 } from 'lucide-react';
 
 // Brand icons (lucide deprecated these — using SVG directly)
@@ -109,6 +111,20 @@ const PORTFOLIO_DATA = {
     }
   ],
   projects: [
+    {
+      title: "SOC Hybrid RAG System",
+      tags: ["OpenSearch", "LangChain", "Ollama", "RAGAS"],
+      metric: "Context Recall 1.00",
+      description: "The Problem: SOC analysts waste critical incident response time hunting through runbooks with keyword search — which breaks the moment query language diverges from document language. \"Living off the land\" and \"LOLBins\" are the same concept; a keyword engine returns zero matches.\n\nThe Solution: A locally hosted hybrid retrieval system that merges dense vector search (semantic) with BM25 (exact-match) using Reciprocal Rank Fusion — so neither query style loses.\n\nTechnical Stack: OpenSearch for hybrid k-NN + BM25 retrieval via RRF · sentence-transformers all-MiniLM-L6-v2 for fully local embeddings · Llama 3.1 8B via Ollama on an RTX 5070 Ti — zero cloud API calls · LangChain for the retrieval → context → generation pipeline · Streamlit UI with per-session index isolation, source citations on every answer, and a compare mode that runs the same query across all three retrieval methods side by side.\n\nEvaluation (RAGAS): Context recall hit 1.00 across every test question — the retrieval never dropped relevant material. Faithfulness scored 0.72, partly a known RAGAS limitation: it penalizes paraphrasing even when the answer is correct.\n\nKey Insight: The entire system runs at zero cost and zero data leaves the machine. For security teams under data residency requirements, that is not a nice-to-have — it is a hard requirement this architecture satisfies by design.",
+      links: { github: "#", demo: "#" }
+    },
+    {
+      title: "DischargeIQ — Patient Discharge AI",
+      tags: ["FastAPI", "Claude", "Streamlit", "Multi-Agent"],
+      metric: "6-Agent Pipeline",
+      description: "The Problem: Patients discharged from hospitals often cannot understand their own discharge documents — medical jargon, dense formatting, and missing plain-language explanations drive preventable readmissions.\n\nThe Solution: A 6-agent pipeline that converts any discharge PDF into structured, readable patient education and surfaces the gaps the document left unanswered before the patient ever leaves.\n\nAgent Architecture: Agent 1 extracts a structured schema (diagnosis, medications, follow-ups, red-flag symptoms) via locked Pydantic contract · Agents 2–5 each produce one patient-facing section — diagnosis explanation, medication rationale, week-by-week recovery timeline, and a three-tier escalation decision tree for warning signs · Agent 6 (AI patient simulator) reads the same document as a confused patient would, identifies missed concepts, scores document gaps 0–10 by severity.\n\nTechnical Stack: FastAPI backend · Claude Haiku / Sonnet (configurable) · Streamlit 6-tab dashboard · Neon PostgreSQL for session history · pdfplumber for extraction · Flesch-Kincaid readability gate (target grade ≤ 6.0) enforced on every agent output.\n\nEvaluation: LLM-as-judge evaluation across 20 cases — zero hallucinations, zero safety failures. Readability gate passed across all five target diagnoses: heart failure, COPD, diabetes, hip replacement, surgical.\n\nBuilt as a graduate project (CS 595, IIT Chicago, Spring 2026) targeting the patient engagement gap in post-discharge health literacy.",
+      links: { github: "#", demo: "#" }
+    },
     {
       title: "Flavor Bridge",
       tags: ["AI", "Web", "Hackathon"],
@@ -248,6 +264,288 @@ const SectionHeader = ({ icon, title, accent, rightContent }) => {
       <div className={`flex-1 h-px bg-gradient-to-r to-transparent ml-2 ${isPurple ? 'from-purple-500/30' : 'from-cyan-500/30'}`} />
       {rightContent && <div className="flex-shrink-0 ml-2">{rightContent}</div>}
     </div>
+  );
+};
+
+// --- AVATAR INTRO (Tier 1: typewriter speech bubble) ---
+const INTRO_TEXT = "Hi, I'm Deepesh — I build AI agents, automate workflows, and ship products fast. Currently researching Text-to-SQL at Illinois Tech. Open to Summer 2026 roles.";
+
+const AvatarIntro = ({ onDismiss }) => {
+  const [displayed, setDisplayed] = useState('');
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      setDisplayed(INTRO_TEXT.slice(0, i + 1));
+      i++;
+      if (i >= INTRO_TEXT.length) { clearInterval(interval); setDone(true); }
+    }, 28);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10, scale: 0.95, x: '-50%' }}
+      animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+      exit={{ opacity: 0, scale: 0.9, x: '-50%' }}
+      className="absolute z-20 w-72 md:w-80"
+      style={{ bottom: 'calc(100% + 16px)', left: '50%' }}
+    >
+      <div className="glass-panel border border-cyan-500/25 rounded-2xl p-4 shadow-2xl shadow-cyan-500/10 relative">
+        <div
+          className="absolute left-1/2 w-3.5 h-3.5 bg-[#050506] border-b border-r border-cyan-500/25"
+          style={{ bottom: '-7px', transform: 'translateX(-50%) rotate(45deg)' }}
+        />
+        <div className="flex items-start gap-2 mb-2">
+          <div className="w-2 h-2 rounded-full bg-cyan-400 mt-1.5 flex-shrink-0 animate-pulse" />
+          <p className="text-sm text-slate-200 leading-relaxed font-light">
+            {displayed}
+            {!done && <span className="inline-block w-0.5 h-4 bg-cyan-400 ml-0.5 animate-pulse align-middle" />}
+          </p>
+        </div>
+        {done && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex gap-2 mt-3 pt-3 border-t border-white/5"
+          >
+            <a
+              href="#ai-chat"
+              onClick={onDismiss}
+              className="flex-1 text-xs px-3 py-1.5 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-center hover:bg-cyan-500/25 transition-colors"
+            >
+              Chat with my AI ↓
+            </a>
+            <a
+              href="#projects"
+              onClick={onDismiss}
+              className="flex-1 text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-center hover:bg-white/10 transition-colors"
+            >
+              See Projects ↓
+            </a>
+          </motion.div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+// --- AI CHAT SECTION ---
+const WAVEFORM_HEIGHTS = [6, 14, 9, 18, 11, 22, 8, 16, 20, 7, 13, 10];
+
+const AIChatSection = () => {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [isThinking, setIsThinking] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const messagesEndRef = useRef(null);
+
+  const suggestions = [
+    "What projects has Deepesh built?",
+    "Is he open to internships?",
+    "What's his AI tech stack?",
+    "Tell me about his research",
+  ];
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isThinking]);
+
+  const sendMessage = async (text) => {
+    const trimmed = text.trim();
+    if (!trimmed || isThinking) return;
+
+    const userMsg = { role: 'user', content: trimmed };
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    setInput('');
+    setShowSuggestions(false);
+    setIsThinking(true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: nextMessages }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', content: "I'm having trouble connecting right now. Please try again in a moment!" }]);
+      setShowSuggestions(true);
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
+  return (
+    <section id="ai-chat" className="mb-20 md:mb-24 scroll-mt-24">
+      <SectionHeader
+        icon={<BrainCircuit className="w-5 h-5 text-cyan-400" />}
+        title="Chat with Deepesh's AI"
+        accent="cyan"
+      />
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
+
+        {/* Left: Animated avatar panel */}
+        <div className="md:col-span-2 glass-panel rounded-2xl p-6 flex flex-col items-center justify-center gap-4 relative overflow-hidden min-h-[280px]">
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5" />
+
+          {/* Profile with pulse rings */}
+          <div className="relative z-10">
+            {[1, 2, 3].map(i => (
+              <motion.div
+                key={i}
+                className="absolute inset-0 rounded-full border border-cyan-500/20"
+                animate={{ scale: [1, 1.4 + i * 0.25], opacity: [0.4, 0] }}
+                transition={{ duration: 2, repeat: Infinity, delay: i * 0.5, ease: 'easeOut' }}
+              />
+            ))}
+            <div className={`relative w-24 h-24 rounded-full overflow-hidden border-2 transition-colors duration-500 shadow-lg bg-white ${isThinking ? 'border-amber-400/50 shadow-amber-500/20' : 'border-cyan-500/40 shadow-cyan-500/20'}`}>
+              <img src="/avatar.png" alt="Deepesh AI Avatar" className="w-full h-full object-contain" />
+              {isThinking && (
+                <div className="absolute inset-0 bg-[#050506]/60 flex items-center justify-center backdrop-blur-sm">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full"
+                  />
+                </div>
+              )}
+            </div>
+            <div className={`absolute bottom-0.5 right-0.5 w-4 h-4 rounded-full border-2 border-[#050506] transition-colors duration-500 shadow-lg ${isThinking ? 'bg-amber-400 shadow-amber-500/50' : 'bg-emerald-400 shadow-emerald-500/50'}`} />
+          </div>
+
+          <div className="text-center z-10">
+            <div className="font-semibold text-white text-sm">Deepesh's AI</div>
+            <div className={`text-xs mt-0.5 transition-colors duration-300 ${isThinking ? 'text-amber-400' : 'text-emerald-400'}`}>
+              {isThinking ? 'Thinking...' : 'Online — ask me anything'}
+            </div>
+          </div>
+
+          {/* Waveform bars */}
+          <div className="flex items-end gap-1 h-8 z-10">
+            {WAVEFORM_HEIGHTS.map((h, i) => (
+              <motion.div
+                key={i}
+                className={`w-1 rounded-full transition-colors duration-300 ${isThinking ? 'bg-amber-400/70' : 'bg-cyan-400/60'}`}
+                style={{ height: h }}
+                animate={{ scaleY: [1, isThinking ? 1.8 : 1.4, 0.6, 1] }}
+                transition={{ duration: 0.7 + i * 0.06, repeat: Infinity, ease: 'easeInOut', delay: i * 0.05 }}
+              />
+            ))}
+          </div>
+
+          <p className="text-xs text-slate-500 text-center z-10 max-w-[180px] leading-relaxed">
+            Ask about projects, research, tech stack, or availability
+          </p>
+        </div>
+
+        {/* Right: Chat window */}
+        <div className="md:col-span-3 glass-card rounded-2xl overflow-hidden flex flex-col" style={{ minHeight: '420px', maxHeight: '520px' }}>
+
+          {/* Header */}
+          <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2.5 flex-shrink-0">
+            <div className={`w-2 h-2 rounded-full transition-colors ${isThinking ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
+            <span className="text-sm font-medium text-slate-300">AI Portfolio Assistant</span>
+            <span className="text-xs text-slate-600 ml-auto font-mono">OpenRouter · Llama-3.1-8B</span>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 min-h-0">
+            {messages.length === 0 && (
+              <div className="flex gap-3">
+                <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 border border-cyan-500/30 bg-white">
+                  <img src="/avatar.png" alt="" className="w-full h-full object-contain" />
+                </div>
+                <div className="glass-panel rounded-2xl rounded-tl-sm px-4 py-2.5 max-w-[85%]">
+                  <p className="text-sm text-slate-200">Hi! I'm Deepesh's AI. Ask me about his projects, research, or availability for roles! 👋</p>
+                </div>
+              </div>
+            )}
+
+            {messages.map((msg, i) => (
+              <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                {msg.role === 'assistant' && (
+                  <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 border border-cyan-500/30 mt-0.5 bg-white">
+                    <img src="/avatar.png" alt="" className="w-full h-full object-contain" />
+                  </div>
+                )}
+                <div className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed max-w-[82%] ${
+                  msg.role === 'user'
+                    ? 'bg-cyan-500/20 border border-cyan-500/30 text-white rounded-tr-sm'
+                    : 'glass-panel text-slate-200 rounded-tl-sm'
+                }`}>
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+
+            {isThinking && (
+              <div className="flex gap-3">
+                <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 border border-cyan-500/30 mt-0.5 bg-white">
+                  <img src="/avatar.png" alt="" className="w-full h-full object-contain" />
+                </div>
+                <div className="glass-panel rounded-2xl rounded-tl-sm px-4 py-3">
+                  <div className="flex gap-1.5 items-center h-4">
+                    {[0, 1, 2].map(i => (
+                      <motion.div
+                        key={i}
+                        className="w-1.5 h-1.5 rounded-full bg-slate-400"
+                        animate={{ y: [0, -5, 0] }}
+                        transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.12 }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Suggestion chips */}
+          {showSuggestions && (
+            <div className="px-5 pb-3 flex flex-wrap gap-2 flex-shrink-0">
+              {suggestions.map((s, i) => (
+                <motion.button
+                  key={i}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.08 }}
+                  onClick={() => sendMessage(s)}
+                  className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:border-cyan-500/30 hover:text-cyan-300 transition-colors"
+                >
+                  {s}
+                </motion.button>
+              ))}
+            </div>
+          )}
+
+          {/* Input */}
+          <div className="px-4 py-3 border-t border-white/5 flex gap-2 flex-shrink-0">
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
+              placeholder="Ask about Deepesh's experience..."
+              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 transition-colors"
+              disabled={isThinking}
+            />
+            <button
+              onClick={() => sendMessage(input)}
+              disabled={!input.trim() || isThinking}
+              className="px-3.5 py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              aria-label="Send message"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };
 
@@ -475,6 +773,7 @@ const ArticleCard = ({ article, index }) => {
   );
 };
 
+
 const ExperienceItem = ({ item, index }) => {
   const isEdu = item.type === 'edu';
   const [expanded, setExpanded] = useState(false);
@@ -520,6 +819,7 @@ function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
+  const [showIntro, setShowIntro] = useState(false);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -527,6 +827,17 @@ function App() {
     damping: 30,
     restDelta: 0.001
   });
+
+  // Avatar intro: show once per session, 1.2s delay, auto-dismiss after 9s
+  useEffect(() => {
+    if (sessionStorage.getItem('intro-shown')) return;
+    const show = setTimeout(() => {
+      setShowIntro(true);
+      sessionStorage.setItem('intro-shown', '1');
+    }, 1200);
+    const hide = setTimeout(() => setShowIntro(false), 10200);
+    return () => { clearTimeout(show); clearTimeout(hide); };
+  }, []);
 
   // Scroll detection
   useEffect(() => {
@@ -544,7 +855,7 @@ function App() {
 
   // Active section tracking via IntersectionObserver
   useEffect(() => {
-    const sectionIds = ['projects', 'articles', 'education', 'experience', 'skills'];
+    const sectionIds = ['ai-chat', 'projects', 'articles', 'education', 'experience', 'skills'];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
@@ -563,6 +874,7 @@ function App() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const navLinks = [
+    { href: '#ai-chat', label: 'AI Chat', active: activeSection === 'ai-chat' },
     { href: '#projects', label: 'Projects', active: activeSection === 'projects' },
     { href: '#articles', label: 'Articles', active: activeSection === 'articles' },
     { href: '#education', label: 'Education', active: activeSection === 'education' },
@@ -746,17 +1058,33 @@ function App() {
                   <span className="hidden sm:inline">{PORTFOLIO_DATA.profile.social.phone}</span>
                   <span className="sm:hidden">Call</span>
                 </a>
+                <a
+                  href="/resume.pdf"
+                  download="Deepesh_Kumar_Appar_Senthilkumar_AI_Engineer.pdf"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 text-sm font-medium text-white hover:from-cyan-500/30 hover:to-purple-500/30 active:scale-95 transition-all"
+                >
+                  <Download className="w-4 h-4" /> Resume
+                </a>
               </div>
             </div>
 
             {/* Profile photo */}
-            <div className="relative flex-shrink-0 self-start md:self-center order-1 md:order-2">
-              <div className="relative w-40 h-40 md:w-56 md:h-56">
+            <div className="relative flex-shrink-0 self-start md:self-center order-1 md:order-2" style={{ overflow: 'visible' }}>
+              <div
+                className="relative w-40 h-40 md:w-56 md:h-56"
+                style={{ overflow: 'visible' }}
+                onClick={() => showIntro && setShowIntro(false)}
+              >
+                {/* AvatarIntro speech bubble */}
+                <AnimatePresence>
+                  {showIntro && <AvatarIntro onDismiss={() => setShowIntro(false)} />}
+                </AnimatePresence>
+
                 {/* Glow ring */}
-                <div className="absolute -inset-3 bg-gradient-to-br from-cyan-500/20 via-transparent to-purple-600/20 rounded-full blur-xl"></div>
-                <div className="absolute -inset-0.5 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full blur opacity-20"></div>
+                <div className={`absolute -inset-3 rounded-full blur-xl transition-all duration-700 ${showIntro ? 'bg-gradient-to-br from-cyan-500/40 via-transparent to-purple-600/30' : 'bg-gradient-to-br from-cyan-500/20 via-transparent to-purple-600/20'}`}></div>
+                <div className={`absolute -inset-0.5 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full blur transition-opacity duration-700 ${showIntro ? 'opacity-40' : 'opacity-20'}`}></div>
                 {/* Photo */}
-                <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-white/15 shadow-2xl">
+                <div className={`relative w-full h-full rounded-full overflow-hidden border-2 shadow-2xl transition-all duration-500 ${showIntro ? 'border-cyan-500/50 shadow-cyan-500/20' : 'border-white/15'}`}>
                   <img
                     src="/profile.jpg"
                     alt="Deepesh Kumar"
@@ -802,6 +1130,9 @@ function App() {
             ))}
           </div>
         </section>
+
+        {/* ── AI CHAT ── */}
+        <AIChatSection />
 
         {/* ── PROJECTS ── */}
         <section id="projects" className="mb-20 md:mb-24 scroll-mt-24">
