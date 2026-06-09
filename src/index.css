@@ -109,3 +109,9 @@ button:focus-visible {
     min-width: unset;
   }
 }
+
+/* ── Cinematic About — marquee animation ── */
+@keyframes aboutMarquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
