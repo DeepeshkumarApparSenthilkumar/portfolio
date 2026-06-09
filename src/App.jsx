@@ -334,6 +334,98 @@ const AvatarIntro = ({ onDismiss }) => {
 // --- AI CHAT SECTION ---
 const WAVEFORM_HEIGHTS = [6, 14, 9, 18, 11, 22, 8, 16, 20, 7, 13, 10];
 
+const ABOUT_BIO =
+  "AI Researcher and Graduate Student at Illinois Tech building multi-agent systems that ship to production. " +
+  "I have gone from LOLBins to LLMs, built a 6-module city platform in 48 hours, and run fully autonomous news pipelines at zero cost. " +
+  "My work lives at the intersection of retrieval, reasoning, and real-world deployment. " +
+  "Currently researching Text-to-SQL under Dr. Gerald Balekaki. Open to Summer 2026 roles.";
+
+const ABOUT_MARQUEE_ITEMS = [
+  "AI Researcher", "Illinois Tech", "Multi-Agent Systems", "LLM Engineer",
+  "RAG Architect", "Automation Builder", "Text-to-SQL", "FastAPI",
+  "n8n Workflows", "React Developer", "Graduate Student", "Builder",
+];
+
+const ABOUT_STATS = [
+  { value: "3.6", label: "GPA" },
+  { value: "10+", label: "Projects" },
+  { value: "4",   label: "Roles" },
+];
+
+const inlineFormat = (text) => {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    if (/^\*\*[^*]+\*\*$/.test(part)) {
+      return <strong key={i} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
+    }
+    if (/^\*[^*]+\*$/.test(part)) {
+      return <em key={i} className="text-slate-300 italic">{part.slice(1, -1)}</em>;
+    }
+    return part;
+  });
+};
+
+const formatMessage = (text) => {
+  const lines = text.split('\n');
+  const elements = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Numbered list: collect consecutive numbered lines
+    if (/^\d+\.\s/.test(line)) {
+      const listItems = [];
+      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
+        listItems.push(lines[i].replace(/^\d+\.\s/, ''));
+        i++;
+      }
+      elements.push(
+        <ol key={elements.length} className="list-decimal list-outside pl-5 space-y-1 my-1.5">
+          {listItems.map((item, j) => (
+            <li key={j}>{inlineFormat(item)}</li>
+          ))}
+        </ol>
+      );
+      continue;
+    }
+
+    // Bullet list: collect consecutive bullet lines
+    if (/^[-*]\s/.test(line)) {
+      const listItems = [];
+      while (i < lines.length && /^[-*]\s/.test(lines[i])) {
+        listItems.push(lines[i].replace(/^[-*]\s/, ''));
+        i++;
+      }
+      elements.push(
+        <ul key={elements.length} className="list-disc list-outside pl-5 space-y-1 my-1.5">
+          {listItems.map((item, j) => (
+            <li key={j}>{inlineFormat(item)}</li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+
+    // Empty line = paragraph gap
+    if (line.trim() === '') {
+      if (elements.length > 0) {
+        elements.push(<div key={elements.length} className="h-1.5" />);
+      }
+      i++;
+      continue;
+    }
+
+    // Normal line
+    elements.push(
+      <p key={elements.length} className="leading-relaxed">{inlineFormat(line)}</p>
+    );
+    i++;
+  }
+
+  return <>{elements}</>;
+};
+
 const AIChatSection = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -369,11 +461,15 @@ const AIChatSection = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: nextMessages }),
       });
-      const data = await res.json();
+      const text = await res.text();
+      let data = {};
+      try { data = JSON.parse(text); } catch (_) {}
       if (!res.ok) {
-        const detail = data?.detail || data?.error || `Error ${res.status}`;
+        const detail = data?.detail || data?.error ||
+          (res.status === 404 ? 'API not found. On Vercel deployment this should work — check GROQ_API_KEY env var.' : `Server error ${res.status}`);
         throw new Error(detail);
       }
+      if (!data.message) throw new Error('No response received');
       setMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
     } catch (err) {
       const msg = err.message?.includes('fetch')
@@ -484,7 +580,7 @@ const AIChatSection = () => {
                     ? 'bg-cyan-500/20 border border-cyan-500/30 text-white rounded-tr-sm'
                     : 'glass-panel text-slate-200 rounded-tl-sm'
                 }`}>
-                  {msg.content}
+                  {msg.role === 'assistant' ? formatMessage(msg.content) : msg.content}
                 </div>
               </div>
             ))}
@@ -819,6 +915,192 @@ const ExperienceItem = ({ item, index }) => {
   );
 };
 
+const CinematicAboutSection = () => {
+  const sectionRef  = useRef(null);
+  const intervalRef = useRef(null);
+  const [inView,      setInView]      = useState(false);
+  const [typed,       setTyped]       = useState(0);
+  const [typingDone,  setTypingDone]  = useState(false);
+
+  // Detect enter/leave viewport — replay typewriter each time
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.25 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Typewriter: starts fresh every time section enters view
+  useEffect(() => {
+    clearInterval(intervalRef.current);
+    if (!inView) {
+      setTyped(0);
+      setTypingDone(false);
+      return;
+    }
+    setTyped(0);
+    setTypingDone(false);
+    let i = 0;
+    // 5 chars per 16ms tick ≈ ~300 chars/sec — reads comfortably fast
+    intervalRef.current = setInterval(() => {
+      i = Math.min(i + 5, ABOUT_BIO.length);
+      setTyped(i);
+      if (i >= ABOUT_BIO.length) {
+        clearInterval(intervalRef.current);
+        setTypingDone(true);
+      }
+    }, 16);
+    return () => clearInterval(intervalRef.current);
+  }, [inView]);
+
+  return (
+    <section ref={sectionRef} id="about" className="mb-20 md:mb-24 scroll-mt-24">
+      <SectionHeader
+        icon={<Sparkles className="w-5 h-5 text-purple-400" />}
+        title="About Me"
+        accent="purple"
+      />
+
+      {/* Cinematic panel */}
+      <div className="relative rounded-2xl overflow-hidden border border-white/5" style={{ minHeight: '560px' }}>
+
+        {/* Subtle bg gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-950/20 via-[#050506] to-cyan-950/10 pointer-events-none" />
+
+        <div className="relative grid grid-cols-1 md:grid-cols-[42%_58%]" style={{ minHeight: '560px' }}>
+
+          {/* ── LEFT: Full-bleed portrait ── */}
+          <motion.div
+            className="relative overflow-hidden"
+            style={{ minHeight: '480px' }}
+            initial={{ opacity: 0, x: -60 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+            transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
+            <img
+              src="/profile.jpg"
+              alt="Deepesh Kumar"
+              className="w-full h-full object-cover object-top absolute inset-0"
+            />
+            {/* Right-edge: photo blends into dark content */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#050506]" />
+            {/* Bottom fade */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050506]/60 via-transparent to-transparent" />
+            {/* Top vignette */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#050506]/30 via-transparent to-transparent" />
+          </motion.div>
+
+          {/* ── RIGHT: Content ── */}
+          <motion.div
+            className="relative flex flex-col justify-center gap-5 px-8 md:px-10 py-10 md:py-12"
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+            transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.15 }}
+          >
+            {/* WHO I AM label */}
+            <p className="text-xs font-bold tracking-[0.2em] uppercase text-cyan-400">
+              Who I Am
+            </p>
+
+            {/* Name + role */}
+            <div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight">
+                Deepesh Kumar
+              </h2>
+              <p className="text-base md:text-lg text-purple-400 font-medium mt-2">
+                AI Researcher &amp; Graduate Student
+              </p>
+            </div>
+
+            {/* Infinite skill marquee */}
+            <div
+              className="overflow-hidden"
+              style={{
+                maskImage: 'linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%)',
+              }}
+            >
+              <div className="flex w-max" style={{ animation: 'aboutMarquee 22s linear infinite' }}>
+                {[...ABOUT_MARQUEE_ITEMS, ...ABOUT_MARQUEE_ITEMS].map((item, i) => (
+                  <span
+                    key={i}
+                    className="text-[0.65rem] font-bold tracking-[0.12em] uppercase text-slate-500 whitespace-nowrap flex items-center"
+                  >
+                    {item}
+                    <span className="text-cyan-500 mx-3 text-sm leading-none">·</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Typewriter bio */}
+            <div className="min-h-[100px]">
+              <p className="text-base md:text-lg font-medium leading-relaxed">
+                {ABOUT_BIO.split('').map((char, i) => (
+                  <span
+                    key={i}
+                    style={{ color: i < typed ? '#cbd5e1' : '#1e293b', transition: 'color 0.04s' }}
+                  >
+                    {char}
+                  </span>
+                ))}
+                {!typingDone && (
+                  <span
+                    className="inline-block align-bottom ml-0.5 animate-pulse"
+                    style={{ width: '2px', height: '1em', background: '#06b6d4', display: 'inline-block' }}
+                  />
+                )}
+              </p>
+            </div>
+
+            {/* Stats + socials */}
+            <div className="flex flex-wrap items-end gap-6 pt-5 border-t border-white/5">
+              {ABOUT_STATS.map((stat, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: false, amount: 0.5 }}
+                  transition={{ delay: 0.4 + i * 0.1, duration: 0.4 }}
+                >
+                  <div className="text-2xl md:text-3xl font-black text-white tracking-tight">{stat.value}</div>
+                  <div className="text-xs text-slate-500 mt-0.5 uppercase tracking-wider">{stat.label}</div>
+                </motion.div>
+              ))}
+
+              {/* Social icons pushed to end */}
+              <div className="flex gap-2 ml-auto">
+                {[
+                  { href: 'https://github.com/DeepeshkumarApparSenthilkumar', icon: <GithubIcon className="w-4 h-4" />, label: 'GitHub' },
+                  { href: 'https://www.linkedin.com/in/deepesh-kumar-a90a16218', icon: <LinkedinIcon className="w-4 h-4" />, label: 'LinkedIn' },
+                  { href: 'mailto:dapparsenthilkumar@hawk.illinoistech.edu', icon: <Mail className="w-4 h-4" />, label: 'Email' },
+                  { href: 'https://medium.com/@dk5058203', icon: <BookOpen className="w-4 h-4" />, label: 'Medium' },
+                ].map(({ href, icon, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target={href.startsWith('mailto') ? undefined : '_blank'}
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-500/40 hover:bg-cyan-500/8 transition-all duration-200 hover:-translate-y-0.5"
+                  >
+                    {icon}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
+      </div>
+    </section>
+  );
+};
+
 // --- MAIN APP ---
 function App() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -826,6 +1108,11 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const [showIntro, setShowIntro] = useState(false);
+
+  // Disable browser scroll restoration so hash URLs don't auto-scroll on reload
+  useEffect(() => {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  }, []);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -861,7 +1148,7 @@ function App() {
 
   // Active section tracking via IntersectionObserver
   useEffect(() => {
-    const sectionIds = ['ai-chat', 'projects', 'articles', 'education', 'experience', 'skills'];
+    const sectionIds = ['projects', 'ai-chat', 'articles', 'about', 'education', 'experience', 'skills'];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
@@ -880,12 +1167,13 @@ function App() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const navLinks = [
-    { href: '#ai-chat', label: 'AI Chat', active: activeSection === 'ai-chat' },
-    { href: '#projects', label: 'Projects', active: activeSection === 'projects' },
-    { href: '#articles', label: 'Articles', active: activeSection === 'articles' },
-    { href: '#education', label: 'Education', active: activeSection === 'education' },
-    { href: '#experience', label: 'Experience', active: activeSection === 'experience' },
-    { href: '#skills', label: 'Skills', active: activeSection === 'skills' },
+    { href: '#projects',   label: 'Projects',   active: activeSection === 'projects'   },
+    { href: '#ai-chat',    label: 'AI Chat',     active: activeSection === 'ai-chat'    },
+    { href: '#articles',   label: 'Articles',    active: activeSection === 'articles'   },
+    { href: '#about',      label: 'About',       active: activeSection === 'about'      },
+    { href: '#education',  label: 'Education',   active: activeSection === 'education'  },
+    { href: '#experience', label: 'Experience',  active: activeSection === 'experience' },
+    { href: '#skills',     label: 'Skills',      active: activeSection === 'skills'     },
   ];
 
   return (
@@ -934,6 +1222,7 @@ function App() {
               <a
                 key={link.href}
                 href={link.href}
+                onClick={(e) => { e.preventDefault(); document.getElementById(link.href.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   link.active
                     ? 'text-cyan-400 bg-cyan-500/10'
@@ -976,7 +1265,7 @@ function App() {
                   <a
                     key={link.href}
                     href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={(e) => { e.preventDefault(); setMobileMenuOpen(false); document.getElementById(link.href.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
                     className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${
                       link.active ? 'text-cyan-400 bg-cyan-500/10' : 'text-slate-300 hover:text-white hover:bg-white/5'
                     }`}
@@ -1137,9 +1426,6 @@ function App() {
           </div>
         </section>
 
-        {/* ── AI CHAT ── */}
-        <AIChatSection />
-
         {/* ── PROJECTS ── */}
         <section id="projects" className="mb-20 md:mb-24 scroll-mt-24">
           <SectionHeader
@@ -1153,6 +1439,9 @@ function App() {
             ))}
           </div>
         </section>
+
+        {/* ── AI CHAT ── */}
+        <AIChatSection />
 
         {/* ── ARTICLES ── */}
         <section id="articles" className="mb-20 md:mb-24 scroll-mt-24">
@@ -1177,6 +1466,9 @@ function App() {
             ))}
           </div>
         </section>
+
+        {/* ── CINEMATIC ABOUT ── */}
+        <CinematicAboutSection />
 
         {/* ── EDUCATION ── */}
         <section id="education" className="mb-20 md:mb-24 scroll-mt-24">
